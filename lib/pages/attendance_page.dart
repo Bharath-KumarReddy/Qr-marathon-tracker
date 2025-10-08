@@ -29,12 +29,12 @@ class _AttendancePageState extends State<AttendancePage> {
             child: TextField(
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
-                hintText: "Search by name",
+                hintText: "Search by name or jersey number",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              onChanged: (value) => setState(() => _searchText = value),
+              onChanged: (value) => setState(() => _searchText = value.trim()),
             ),
           ),
 
@@ -51,13 +51,12 @@ class _AttendancePageState extends State<AttendancePage> {
                 }
 
                 final all = snapshot.data!;
-                final filtered = all
-                    .where(
-                      (p) => p.name.toLowerCase().contains(
-                        _searchText.toLowerCase(),
-                      ),
-                    )
-                    .toList();
+                final filtered = all.where((p) {
+                  final query = _searchText.toLowerCase();
+                  return p.name.toLowerCase().contains(query) ||
+                      (p.jersey != null &&
+                          p.jersey.toLowerCase().contains(query));
+                }).toList();
 
                 return ListView.builder(
                   itemCount: filtered.length,

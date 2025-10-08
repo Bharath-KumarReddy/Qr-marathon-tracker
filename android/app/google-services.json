@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "714613150281",
+    "project_id": "marathon1-842bc",
+    "storage_bucket": "marathon1-842bc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:714613150281:android:60943061e62feca7a6a598",
+        "android_client_info": {
+          "package_name": "com.example.og"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlJN2I52bIWQ-1rH_FzdyIuaE9cYJSoiQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

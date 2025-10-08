@@ -40,4 +40,9 @@ class FirestoreService {
     final d = q.docs.first;
     return Participant.fromMap(d.data(), d.id);
   }
+
+  // 🔹 Update jersey number
+  Future<void> updateJersey(String id, String jersey) async {
+    await _db.doc(id).update({'jersey': jersey});
+  }
 }

@@ -17,6 +17,7 @@ class DashboardPage extends StatelessWidget {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
+
           final list = snapshot.data!;
           final finished = list.where((p) => p.status == "finished").toList();
           final started = list.where((p) => p.status == "started").toList();

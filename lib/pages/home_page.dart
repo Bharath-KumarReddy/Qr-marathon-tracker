@@ -180,7 +180,6 @@
 //     );
 //   }
 // }
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -212,18 +211,12 @@ class _HomePageState extends State<HomePage> {
       formats: [BarcodeFormat.qrCode],
     );
 
-    // ✅ Keep participants list updated live from Firestore
     _participantsStream.listen(
       (participants) {
-        if (mounted) {
-          setState(() {
-            _participants = participants;
-          });
-        }
+        if (mounted) setState(() => _participants = participants);
       },
-      onError: (e) {
-        Fluttertoast.showToast(msg: "❌ Error loading participants: $e");
-      },
+      onError: (e) =>
+          Fluttertoast.showToast(msg: "❌ Error loading participants: $e"),
     );
   }
 
@@ -238,29 +231,17 @@ class _HomePageState extends State<HomePage> {
     setState(() => _isProcessing = true);
 
     try {
-      if (capture.barcodes.isEmpty) {
-        throw Exception('No QR code detected');
-      }
-
+      if (capture.barcodes.isEmpty) throw Exception('No QR code detected');
       final code = capture.barcodes.first.rawValue;
-      if (code == null || code.isEmpty) {
-        throw Exception('Invalid QR code');
-      }
+      if (code == null || code.isEmpty) throw Exception('Invalid QR code');
 
-      Map<String, dynamic> data;
-      try {
-        data = jsonDecode(code) as Map<String, dynamic>;
-      } catch (e) {
-        throw Exception('Invalid QR code format');
-      }
-
+      Map<String, dynamic> data = jsonDecode(code);
       final jersey =
           data['jersey']?.toString() ?? data['jersey_number']?.toString();
       if (jersey == null || jersey.isEmpty) {
         throw Exception('No jersey number found in QR code');
       }
 
-      // ✅ Ensure participants are up to date
       if (_participants.isEmpty) {
         throw Exception('Participant data not loaded yet. Please try again.');
       }
@@ -270,7 +251,6 @@ class _HomePageState extends State<HomePage> {
         orElse: () => throw Exception('Participant not found'),
       );
 
-      // ✅ Status checks
       if (participant.status == 'finished') {
         Fluttertoast.showToast(
           msg: "❗ ${participant.name} has already finished!",
@@ -278,34 +258,13 @@ class _HomePageState extends State<HomePage> {
         return;
       }
 
-      if (participant.status == 'present') {
-        // ⚠️ Show popup if participant has not started yet
-        await showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Participant Not Started'),
-            content: Text(
-              "${participant.name} must be started first before finishing.",
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
-        return;
-      }
-
       if (participant.status != 'started') {
-        // same handling for other invalid states
         await showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('Invalid Status'),
+            title: const Text('Not Eligible'),
             content: Text(
-              "${participant.name} is not eligible to finish (Status: ${participant.status}).",
+              "${participant.name} must be started first (Current status: ${participant.status}).",
             ),
             actions: [
               TextButton(
@@ -318,23 +277,57 @@ class _HomePageState extends State<HomePage> {
         return;
       }
 
-      // ✅ Automatically mark as finished
+      // Stop the scanner before showing the dialog
       await _scannerController.stop();
-      await _fs.markFinished(participant.id);
-      Fluttertoast.showToast(msg: "✅ ${participant.name} marked Finished!");
 
-      await _scannerController.start();
+      // Show a simplified confirmation dialog
+      final bool? confirmed = await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => AlertDialog(
+          title: const Text('Confirm Finish'),
+          // ✅ CONTENT CHANGED: No TextField, just a confirmation message.
+          content: Text(
+            'Mark ${participant.name} (Jersey: $jersey) as finished?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            // ✅ BUTTON TEXT CHANGED: "Submit" is now "Done".
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Done'),
+            ),
+          ],
+        ),
+      );
+
+      // ✅ LOGIC SIMPLIFIED: No need to check for jersey number changes.
+      if (confirmed == true) {
+        await _fs.markFinished(participant.id);
+        Fluttertoast.showToast(msg: "✅ ${participant.name} marked Finished!");
+      }
     } catch (e) {
       Fluttertoast.showToast(msg: "❌ Error: $e");
     } finally {
-      if (mounted) setState(() => _isProcessing = false);
+      // Always restart the scanner and reset the processing state
+      if (mounted) {
+        await _scannerController.start();
+        setState(() => _isProcessing = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("QR Scanner")),
+      appBar: AppBar(
+        title: const Text("QR Scanner", style: TextStyle(color: Colors.white)),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 57, 67, 183),
+      ),
       body: Stack(
         children: [
           MobileScanner(controller: _scannerController, onDetect: _onDetect),

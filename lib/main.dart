@@ -4,6 +4,7 @@ import 'firebase_options.dart';
 import 'pages/home_page.dart';
 import 'pages/attendance_page.dart';
 import 'pages/dashboard_page.dart';
+import 'pages/participants_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +20,16 @@ class JerseyDigitApp extends StatelessWidget {
     return MaterialApp(
       title: 'Jersey Digit',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.indigo),
+      theme: ThemeData(
+        primarySwatch: Colors.indigo,
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          backgroundColor: Color.fromARGB(255, 57, 67, 183), // deep indigo
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.white70,
+          showUnselectedLabels: true,
+          type: BottomNavigationBarType.fixed,
+        ),
+      ),
       home: const MainNavigation(),
     );
   }
@@ -34,7 +44,12 @@ class MainNavigation extends StatefulWidget {
 
 class _MainNavigationState extends State<MainNavigation> {
   int _index = 0;
-  final pages = [const AttendancePage(), const HomePage(), DashboardPage()];
+  final pages = [
+    const AttendancePage(),
+    const HomePage(),
+    DashboardPage(),
+    const ParticipantsPage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +70,10 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
             label: "Dashboard",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list_alt),
+            label: "Participants",
           ),
         ],
       ),

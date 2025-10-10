@@ -4,13 +4,13 @@ import '../models/participant.dart';
 class ParticipantCard extends StatelessWidget {
   final Participant participant;
   final bool isPresent;
-  final VoidCallback onToggle;
+  final VoidCallback? onToggle;
 
   const ParticipantCard({
     super.key,
     required this.participant,
     required this.isPresent,
-    required this.onToggle,
+    this.onToggle,
   });
 
   @override
@@ -31,7 +31,10 @@ class ParticipantCard extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         subtitle: Text("Jersey: ${participant.jersey}\n${participant.email}"),
-        trailing: Switch(value: isPresent, onChanged: (_) => onToggle()),
+        trailing: Switch(
+          value: isPresent,
+          onChanged: onToggle == null ? null : (_) => onToggle!(),
+        ),
       ),
     );
   }

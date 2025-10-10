@@ -10,7 +10,13 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Dashboard")),
+      appBar: AppBar(
+        // ✅ TITLE TEXT STYLE CHANGED TO WHITE
+        title: const Text("Dashboard", style: TextStyle(color: Colors.white)),
+        // ✅ TITLE CENTERED
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 57, 67, 183),
+      ),
       body: StreamBuilder<List<Participant>>(
         stream: _fs.getParticipants(),
         builder: (context, snapshot) {
@@ -47,14 +53,18 @@ class DashboardPage extends StatelessWidget {
         ),
         children: list.isEmpty
             ? [const ListTile(title: Text("No data available"))]
-            : list
-                  .map(
-                    (p) => ListTile(
-                      title: Text(p.name),
-                      subtitle: Text("Jersey: ${p.jersey}"),
-                    ),
-                  )
-                  .toList(),
+            : list.map((p) {
+                final duration = (p.finishedAt != null && p.startedAt != null)
+                    ? p.finishedAt!.difference(p.startedAt!)
+                    : null;
+                final timeStr = duration != null
+                    ? "${duration.inMinutes} min ${duration.inSeconds % 60} sec"
+                    : "N/A";
+                return ListTile(
+                  title: Text(p.name),
+                  subtitle: Text("Jersey: ${p.jersey} | Time: $timeStr"),
+                );
+              }).toList(),
       ),
     );
   }

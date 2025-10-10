@@ -13,13 +13,22 @@ class AttendancePage extends StatefulWidget {
 class _AttendancePageState extends State<AttendancePage> {
   final FirestoreService _fs = FirestoreService();
   String _searchText = "";
+  // Note: The _raceStarted logic was removed in the code you provided,
+  // so I am keeping it that way. If you need it back, let me know.
+  final bool _raceStarted = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Attendance Management"),
-        backgroundColor: const Color(0xFF90CAF9),
+        // ✅ TITLE TEXT STYLE CHANGED TO WHITE
+        title: const Text(
+          "Attendance Management",
+          style: TextStyle(color: Colors.white),
+        ),
+        // ✅ TITLE CENTERED
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 57, 67, 183),
       ),
       body: Column(
         children: [
@@ -54,26 +63,24 @@ class _AttendancePageState extends State<AttendancePage> {
                 final filtered = all.where((p) {
                   final query = _searchText.toLowerCase();
                   return p.name.toLowerCase().contains(query) ||
-                      (p.jersey != null &&
-                          p.jersey.toLowerCase().contains(query));
+                      p.jersey.toLowerCase().contains(query);
                 }).toList();
 
                 return ListView.builder(
                   itemCount: filtered.length,
                   itemBuilder: (context, i) {
                     final p = filtered[i];
-                    final isPresent = p.status == "started";
+                    final isPresent =
+                        p.status == "started" || p.status == "finished";
 
                     return ParticipantCard(
                       participant: p,
                       isPresent: isPresent,
-                      onToggle: () {
-                        if (isPresent) {
-                          _fs.markAbsent(p.id);
-                        } else {
-                          _fs.markStarted(p.id);
-                        }
-                      },
+                      onToggle: (_raceStarted || isPresent)
+                          ? null // Disable the button
+                          : () {
+                              _fs.markStarted(p.id);
+                            },
                     );
                   },
                 );

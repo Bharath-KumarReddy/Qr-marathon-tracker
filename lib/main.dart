@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:og/splash_screen.dart';
 import 'firebase_options.dart';
 import 'pages/home_page.dart';
 import 'pages/attendance_page.dart';
@@ -23,14 +24,14 @@ class JerseyDigitApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.indigo,
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-          backgroundColor: Color.fromARGB(255, 57, 67, 183), // deep indigo
+          backgroundColor: Color.fromARGB(255, 57, 67, 183),
           selectedItemColor: Colors.white,
           unselectedItemColor: Colors.white70,
           showUnselectedLabels: true,
           type: BottomNavigationBarType.fixed,
         ),
       ),
-      home: const MainNavigation(),
+      home: const SplashScreen(),
     );
   }
 }
